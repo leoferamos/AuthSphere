@@ -1,6 +1,7 @@
 import uuid
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from app.domain.entities.role import Role
 from app.domain.entities.user import User
 
 class UserRepository:
@@ -33,3 +34,23 @@ class UserRepository:
         await self.session.commit()
         await self.session.refresh(new_user)
         return new_user
+
+    async def set_roles(self, user_id: str, role_names: list[str]) -> None:
+        """
+        Replace the user's roles with the provided list of role names.
+        """
+        async with self.session.begin():
+            user = await self.session.get(User, user_id)
+            if not user:
+                raise ValueError(f"User {user_id} not found")
+
+            new_roles = []
+            for role_name in role_names:
+                result = await self.session.execute(select(Role).where(Role.name == role_name))
+                role = result.scalars().first()
+                if not role:
+                    raise ValueError(f"Role '{role_name}' not found")
+                new_roles.append(role)
+
+            user.roles = new_roles
+            # Optional: add audit logging here
