@@ -7,6 +7,8 @@ from app.core.config.database import get_db
 from app.core.dependencies.fields import get_active_fields
 from app.core.dependencies.rbac import requires_permission
 from app.infrastructure.repositories.log_repository import LogRepository
+from sqlalchemy import Column, ForeignKey
+from app.core.dependencies.auth import get_current_user
 
 router = APIRouter(tags=["Users", "Admin"])
 
@@ -39,11 +41,13 @@ async def create_user(
         raise HTTPException(status_code=409, detail="Username already registered")
 
     hashed_password = get_password_hash(user_in.password)
+    
+    user_data = user_in.model_dump()
+    user_data.pop("consent_lgpd", None)
+    user_data.pop("password", None)  #
     user = await user_repo.create_user(
-        username=user_in.username,
-        email=user_in.email,
-        hashed_password=hashed_password,
-        consent_lgpd=user_in.consent_lgpd
+        **user_data,
+        hashed_password=hashed_password
     )
     # Log: user created + consent
     log_repo = LogRepository(db)
@@ -188,3 +192,7 @@ async def revoke_consent(
         ip_address=request.client.host if request else None
     )
     return {"status": "success", "msg": "LGPD consent revoked"}
+
+@router.get("/me", response_model=UserRead)
+async def get_me(current_user=Depends(get_current_user)):
+    return current_user
