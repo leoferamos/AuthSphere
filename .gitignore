@@ -212,6 +212,7 @@ cython_debug/
 __pypackages__/
 celerybeat-schedule
 celerybeat.pid
+alembic.ini
 
 # Node/React/Vite
 node_modules/
