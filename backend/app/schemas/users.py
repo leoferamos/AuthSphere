@@ -8,11 +8,10 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     id: str
     username: str
-    email: EmailStr
-    is_active: bool
+    email: str
 
     class Config:
-        from_attributes = True
+        from_attributes = True  
 
 class UserRoleUpdate(BaseModel):
     roles: list[str]  # List of role names, e.g., ["admin", "auditor"]
