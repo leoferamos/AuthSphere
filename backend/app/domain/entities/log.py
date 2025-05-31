@@ -1,10 +1,8 @@
+from app.core.config.database import Base
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.dialects.mysql import CHAR
-from sqlalchemy.orm import declarative_base
 from datetime import datetime
 import uuid
-
-Base = declarative_base()
 
 class Log(Base):
     __tablename__ = "logs"
