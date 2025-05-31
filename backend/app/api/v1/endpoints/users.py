@@ -47,21 +47,15 @@ async def create_user(
 
 @router.delete(
     "/users/{user_id}",
-    dependencies=[Depends(requires_permission("user:delete"))],
-    summary="Delete a user",
-    responses={
-        403: {"description": "Insufficient permissions"},
-        204: {"description": "User deleted"}
-    }
+    dependencies=[Depends(requires_permission("user:delete"))]
 )
-async def delete_user(user_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_user(
+    user_id: str,
+    db: AsyncSession = Depends(get_db)
+):
     user_repo = UserRepository(db)
-    user = await user_repo.get(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    await user_repo.delete(user_id)
-    return {"detail": "User deleted"}
+    await user_repo.delete_user(user_id)
+    return {"status": "success"}
 
 @router.patch(
     "/users/{user_id}/roles",
