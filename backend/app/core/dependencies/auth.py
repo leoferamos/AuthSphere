@@ -18,7 +18,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    payload = decode_token(token, settings.SECRET_KEY, settings.ALGORITHM)
+    payload = decode_token(token)
     if not payload:
         raise credentials_exception
         
