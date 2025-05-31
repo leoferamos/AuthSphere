@@ -70,3 +70,9 @@ class UserRepository:
         )
         result = await self.session.execute(stmt)
         return result.scalar() is not None
+
+    async def delete_user(self, user_id: str) -> None:
+        user = await self.session.get(User, user_id)
+        if user:
+            await self.session.delete(user)
+            await self.session.commit()
