@@ -1,9 +1,11 @@
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from app.domain.entities.permission import Permission, role_permissions
 from app.domain.entities.role import Role, user_roles
 from app.domain.entities.user import User
+from app.core.utils.security import hash_password
 
 class UserRepository:
     def __init__(self, session: AsyncSession):
@@ -81,19 +83,23 @@ class UserRepository:
         user = await self.get_by_id(user_id)
         user.reset_token = token
         user.reset_token_expires = expires
-        await self.db.commit()
+        await self.session.commit()
 
     async def get_by_reset_token(self, token):
-        result = await self.db.execute(select(User).where(User.reset_token == token))
+        result = await self.session.execute(select(User).where(User.reset_token == token))
         return result.scalar_one_or_none()
 
     async def update_password(self, user_id, new_password):
         user = await self.get_by_id(user_id)
         user.hashed_password = hash_password(new_password)
-        await self.db.commit()
+        await self.session.commit()
 
     async def clear_reset_token(self, user_id):
         user = await self.get_by_id(user_id)
         user.reset_token = None
         user.reset_token_expires = None
-        await self.db.commit()
+        await self.session.commit()
+
+    async def get_by_id(self, user_id):
+        result = await self.session.execute(select(User).where(User.id == user_id))
+        return result.scalar_one_or_none()
