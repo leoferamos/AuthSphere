@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config.database import get_db
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.core.dependencies.auth import get_current_user
+from app.core.dependencies.rbac import requires_permission
 
 def requires_permission(permission: str):
     async def dependency(
