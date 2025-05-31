@@ -13,6 +13,8 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     is_active = Column(Boolean, default=True)
     role = Column(String(20), default="user")
+    reset_token = Column(String(255), nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
 
     roles = relationship("Role", secondary="user_roles", back_populates="users")
 
