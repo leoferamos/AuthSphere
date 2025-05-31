@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
-from app.api.v1.endpoints import auth
+from app.api.v1.endpoints import auth, users
 
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1/users")
