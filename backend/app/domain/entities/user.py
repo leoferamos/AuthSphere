@@ -15,6 +15,7 @@ class User(Base):
     role = Column(String(20), default="user")
     reset_token = Column(String(255), nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
+    consent_lgpd = Column(Boolean, default=False)
 
     roles = relationship("Role", secondary="user_roles", back_populates="users")
 
