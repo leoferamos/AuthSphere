@@ -12,7 +12,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password: str) -> str:
+def hash_password(password: str) -> str:
     """
     Hash a password for storing in the database.
     """
@@ -41,3 +41,9 @@ def decode_token(token: str) -> dict:
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+def get_password_hash(password: str) -> str:
+    """
+    Generate a password hash.
+    """
+    return pwd_context.hash(password)
