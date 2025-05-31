@@ -42,16 +42,23 @@ async def create_user(
     user = await user_repo.create_user(
         username=user_in.username,
         email=user_in.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        consent_lgpd=user_in.consent_lgpd
     )
-    # Log: user created
+    # Log: user created + consent
     log_repo = LogRepository(db)
     await log_repo.create_log(
         user_id=user.id,
         action="user_created",
         ip_address=request.client.host if request else None,
-        details=f"username={user.username}, email={user.email}"
+        details=f"username={user.username}, email={user.email}, consent_lgpd={user.consent_lgpd}"
     )
+    if user.consent_lgpd:
+        await log_repo.create_log(
+            user_id=user.id,
+            action="lgpd_consent_given",
+            ip_address=request.client.host if request else None
+        )
     return user
 
 @router.delete(
@@ -163,3 +170,27 @@ async def anonymize_user(
     )
 
     return {"status": "success", "msg": "User data anonymized"}
+
+@router.post(
+    "/users/{user_id}/revoke-consent",
+    summary="Revoke LGPD consent",
+    description="User revokes LGPD consent."
+)
+async def revoke_consent(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    request: Request = None
+):
+    user_repo = UserRepository(db)
+    log_repo = LogRepository(db)
+    user = await user_repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.consent_lgpd = False
+    await db.commit()
+    await log_repo.create_log(
+        user_id=user.id,
+        action="lgpd_consent_revoked",
+        ip_address=request.client.host if request else None
+    )
+    return {"status": "success", "msg": "LGPD consent revoked"}
