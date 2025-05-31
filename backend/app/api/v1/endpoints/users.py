@@ -149,20 +149,14 @@ async def anonymize_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-   
     user.username = f"anon_{user.id[:8]}"
     user.email = f"anon_{user.id[:8]}@anon.local"
-    user.first_name = None
-    user.last_name = None
-    user.phone = None
-    user.date_of_birth = None
     user.hashed_password = ""
     user.is_active = False
-    
+    user.consent_lgpd = False
 
     await db.commit()
 
-    # Log: user anonymized
     await log_repo.create_log(
         user_id=user.id,
         action="user_anonymized",
