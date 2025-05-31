@@ -1,7 +1,7 @@
 import uuid
+from app.core.config.database import Base
 from sqlalchemy import Column, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
-from app.core.config.database import Base
 from app.domain.entities.permission import role_permissions
 
 user_roles = Table(

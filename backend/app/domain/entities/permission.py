@@ -1,6 +1,6 @@
+from app.core.config.database import Base
 from sqlalchemy import Column, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
-from app.core.config.database import Base
 
 role_permissions = Table(
     "role_permissions",
