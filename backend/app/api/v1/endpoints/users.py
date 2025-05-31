@@ -6,6 +6,7 @@ from app.core.utils.security import get_password_hash
 from app.core.config.database import get_db
 from app.core.dependencies.fields import get_active_fields
 from app.core.dependencies.rbac import requires_permission
+from app.infrastructure.repositories.log_repository import LogRepository
 
 router = APIRouter(tags=["Users", "Admin"])
 
@@ -79,3 +80,18 @@ async def update_user_roles(
         raise HTTPException(status_code=404, detail="User not found")
     await user_repo.set_roles(user_id, roles)
     return {"detail": "User roles updated"}
+
+@router.get(
+    "/logs",
+    dependencies=[Depends(requires_permission("log:view"))],
+    summary="View system logs",
+    description="Requires the 'log:view' permission.",
+    responses={
+        200: {"description": "List of system logs"},
+        403: {"description": "Permission denied"}
+    }
+)
+async def get_system_logs(db: AsyncSession = Depends(get_db)):
+    log_repository = LogRepository(db)
+    logs = await log_repository.get_all_logs()
+    return logs
