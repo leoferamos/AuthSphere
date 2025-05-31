@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_SCHEMA: str | None = None  # Optional schema for MySQL
     DEBUG: bool = False
+    SMTP_SERVER: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASSWORD: str
+    FRONTEND_URL: str = "http://localhost:3000"
 
     class Config:
         env_file = ".env"
