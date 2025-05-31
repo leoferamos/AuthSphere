@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.users import UserCreate, UserRead
 from app.infrastructure.repositories.user_repository import UserRepository
@@ -61,3 +61,21 @@ async def delete_user(user_id: str, db: AsyncSession = Depends(get_db)):
 
     await user_repo.delete(user_id)
     return {"detail": "User deleted"}
+
+@router.patch(
+    "/users/{user_id}/roles",
+    dependencies=[Depends(requires_permission("user:edit_roles"))],
+    summary="Update user roles",
+    description="**Required permission:** `user:edit_roles`"
+)
+async def update_user_roles(
+    user_id: str,
+    roles: list[str] = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db)
+):
+    user_repo = UserRepository(db)
+    user = await user_repo.get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    await user_repo.set_roles(user_id, roles)
+    return {"detail": "User roles updated"}
