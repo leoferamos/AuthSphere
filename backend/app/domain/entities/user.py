@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, DateTime, Boolean, Index
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
 Base = declarative_base()
@@ -14,6 +15,8 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     is_active = Column(Boolean, default=True)
     role = Column(String(20), default="user")
+
+    roles = relationship("Role", secondary="user_roles", back_populates="users")
 
     __table_args__ = (
         Index("ix_users_username", "username", unique=True),
