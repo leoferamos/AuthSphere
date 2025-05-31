@@ -1,7 +1,8 @@
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.domain.entities.role import Role
+from app.domain.entities.permission import Permission, role_permissions
+from app.domain.entities.role import Role, user_roles
 from app.domain.entities.user import User
 
 class UserRepository:
@@ -53,4 +54,19 @@ class UserRepository:
                 new_roles.append(role)
 
             user.roles = new_roles
-            # Optional: add audit logging here
+
+    async def has_permission(self, user_id: str, permission_name: str) -> bool:
+        stmt = (
+            select(Permission.name)
+            .select_from(Permission)
+            .join(role_permissions, Permission.name == role_permissions.c.permission_name)
+            .join(Role, role_permissions.c.role_id == Role.id)
+            .join(user_roles, Role.id == user_roles.c.role_id)
+            .where(
+                (user_roles.c.user_id == user_id) &
+                (Permission.name == permission_name)
+            )
+            .limit(1)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar() is not None
