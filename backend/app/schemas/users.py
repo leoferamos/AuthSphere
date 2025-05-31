@@ -13,3 +13,6 @@ class UserRead(BaseModel):
 
     class Config:
         orm_mode = True
+
+class UserRoleUpdate(BaseModel):
+    roles: list[str]  # List of role names, e.g., ["admin", "auditor"]
