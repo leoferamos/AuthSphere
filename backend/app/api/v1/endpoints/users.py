@@ -9,6 +9,7 @@ from app.core.dependencies.rbac import requires_permission
 from app.infrastructure.repositories.log_repository import LogRepository
 from sqlalchemy import Column, ForeignKey
 from app.core.dependencies.auth import get_current_user
+from typing import List
 
 router = APIRouter(tags=["Users", "Admin"])
 
@@ -39,6 +40,8 @@ async def create_user(
     user_repo = UserRepository(db)
     if await user_repo.get_by_username(user_in.username):
         raise HTTPException(status_code=409, detail="Username already registered")
+    if await user_repo.get_by_email(user_in.email):
+        raise HTTPException(status_code=409, detail="Email already registered")
 
     hashed_password = get_password_hash(user_in.password)
     
@@ -76,14 +79,20 @@ async def delete_user(
 ):
     user_repo = UserRepository(db)
     user = await user_repo.get_by_id(user_id)
-    await user_repo.delete_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     # Log: user deleted
     log_repo = LogRepository(db)
     await log_repo.create_log(
-        user_id=user_id,
+        user_id=user.id,
         action="user_deleted",
         ip_address=request.client.host if request else None
     )
+
+    await user_repo.delete_user(user.id)
+    await db.commit()
+    
     return {"status": "success"}
 
 @router.patch(
@@ -217,3 +226,16 @@ def logout(response: Response, db: AsyncSession = Depends(get_db)):
         samesite="strict"
     )
     return {"msg": "Logged out"}
+
+@router.get(
+    "/",
+    response_model=List[UserRead],
+    summary="List all users",
+    description="Returns a list of all users. Admin only."
+)
+async def list_users(
+    db: AsyncSession = Depends(get_db),
+):
+    user_repo = UserRepository(db)
+    users = await user_repo.list_all_users()
+    return users
