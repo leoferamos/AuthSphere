@@ -15,7 +15,6 @@ const LoginForm = () => {
     setError('');
     try {
       await login(form);
-      window.location.href = '/';
     } catch (err) {
       setError('Invalid credentials');
     }
