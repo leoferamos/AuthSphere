@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const login = async ({ username, password }) => {
     const params = new URLSearchParams();
@@ -16,15 +18,22 @@ export function AuthProvider({ children }) {
       params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
-    await loadUserProfile();
+    const userData = await loadUserProfile();
+    if (userData?.permissions?.includes('admin:access')) {
+      navigate('/admin');
+    } else {
+      navigate('/');
+    }
   };
 
   const loadUserProfile = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/me`);
       setUser(response.data);
+      return response.data;
     } catch {
       setUser(null);
+      return null;
     }
   };
 
