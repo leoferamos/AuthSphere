@@ -44,13 +44,17 @@ const RegisterForm = () => {
       setForm({});
       setConfirmPassword('');
     } catch (err) {
-      const detail = err.response?.data?.detail;
-      if (Array.isArray(detail)) {
-        setError(detail.map((e) => e.msg || JSON.stringify(e)).join(', '));
-      } else if (detail?.errors) {
-        setError(Object.values(detail.errors).join(', '));
+      if (err.response?.status === 409) {
+        setError('This email is already registered. Please use another or log in.');
       } else {
-        setError(detail || 'Registration failed');
+        const detail = err.response?.data?.detail;
+        if (Array.isArray(detail)) {
+          setError(detail.map((e) => e.msg || JSON.stringify(e)).join(', '));
+        } else if (detail?.errors) {
+          setError(Object.values(detail.errors).join(', '));
+        } else {
+          setError(detail || 'Registration failed');
+        }
       }
     }
   };
