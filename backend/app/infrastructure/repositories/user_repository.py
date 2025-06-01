@@ -116,3 +116,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         permissions = [row[0] for row in result.all()]
         return permissions
+
+    async def list_all_users(self):
+        result = await self.session.execute(select(User))
+        return result.scalars().all()
