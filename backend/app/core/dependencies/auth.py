@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordBearer
 from app.core.utils.security import decode_token
 from app.core.config.settings import settings
@@ -9,16 +9,19 @@ from app.infrastructure.repositories.user_repository import UserRepository
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    access_token: str = Cookie(None),
     db: AsyncSession = Depends(get_db)
 ):
+    if not access_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    payload = decode_token(token)
+    payload = decode_token(access_token)
     if not payload:
         raise credentials_exception
         
