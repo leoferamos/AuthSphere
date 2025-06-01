@@ -10,6 +10,7 @@ class UserRead(BaseModel):
     id: str
     username: str
     email: str
+    permissions: list[str] = []
 
     class Config:
         from_attributes = True  
