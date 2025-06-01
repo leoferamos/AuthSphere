@@ -238,4 +238,15 @@ async def list_users(
 ):
     user_repo = UserRepository(db)
     users = await user_repo.list_all_users()
-    return users
+    result = []
+    for user in users:
+        roles = [role.name for role in getattr(user, "roles", [])]
+        result.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active, 
+            "roles": roles,
+            "permissions": await user_repo.get_permissions(user.id)
+        })
+    return result
