@@ -18,6 +18,16 @@ export function AuthProvider({ children }) {
     );
     localStorage.setItem('access_token', response.data.access_token);
     await loadUserProfile();
+
+  
+    const userData = await axios.get(`${import.meta.env.VITE_API_URL}/users/me`, {
+      headers: { Authorization: `Bearer ${response.data.access_token}` }
+    });
+    if (userData.data.permissions?.includes('admin:access')) {
+      window.location.href = '/admin';
+    } else {
+      window.location.href = '/';
+    }
   };
 
   const loadUserProfile = async () => {
