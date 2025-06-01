@@ -194,5 +194,15 @@ async def revoke_consent(
     return {"status": "success", "msg": "LGPD consent revoked"}
 
 @router.get("/me", response_model=UserRead)
-async def get_me(current_user=Depends(get_current_user)):
-    return current_user
+async def get_me(
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    user_repo = UserRepository(db)
+    permissions = await user_repo.get_permissions(current_user.id)
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "permissions": permissions
+    }
