@@ -45,7 +45,14 @@ const RegisterForm = () => {
       setConfirmPassword('');
     } catch (err) {
       if (err.response?.status === 409) {
-        setError('This email is already registered. Please use another or log in.');
+        const detail = err.response?.data?.detail;
+        if (typeof detail === 'string' && detail.toLowerCase().includes('username')) {
+          setError('This username is already taken. Please choose another.');
+        } else if (typeof detail === 'string' && detail.toLowerCase().includes('email')) {
+          setError('This email is already registered. Please use another or log in.');
+        } else {
+          setError('Username or email already in use.');
+        }
       } else {
         const detail = err.response?.data?.detail;
         if (Array.isArray(detail)) {
