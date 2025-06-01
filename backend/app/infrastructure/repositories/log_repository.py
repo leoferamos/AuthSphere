@@ -12,7 +12,7 @@ class LogRepository:
 
     async def create_log(self, user_id, action, ip_address=None, details=None):
         log = Log(
-            user_id=user_id,
+            user_id=user_id if user_id else None,
             action=action,
             ip_address=ip_address,
             details=details
