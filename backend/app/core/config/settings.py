@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
+    DB_ROOT_PASSWORD: str 
     DB_SCHEMA: str | None = None  # Optional schema for MySQL
     DEBUG: bool = False
     SMTP_SERVER: str
