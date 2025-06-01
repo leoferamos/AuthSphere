@@ -1,10 +1,10 @@
-# AuthSphere
 
-**Sistema Centralizado de Autenticação e Administração de Usuários**
 
 <p align="center">
   <img src="assets/logo.png" alt="Logo AuthSphere" width="700"/>
 </p>
+
+**Sistema Centralizado de Autenticação e Administração de Usuários**
 
 ## Sumário
 
