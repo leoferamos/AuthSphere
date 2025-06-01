@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.auth import Token
@@ -25,7 +25,8 @@ class PasswordResetConfirm(BaseModel):
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
-    request: Request = None
+    request: Request = None,
+    response: Response = None
 ):
     user_repo = UserRepository(db)
     log_repo = LogRepository(db)
@@ -61,10 +62,16 @@ async def login_for_access_token(
         ip_address=request.client.host if request else None
     )
 
-    return {
-        "access_token": create_access_token(data={"sub": user.username}),
-        "token_type": "bearer"
-    }
+    token = create_access_token(data={"sub": user.username})
+    if response:
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            secure=False,  # True em produção HTTPS
+            samesite="lax"
+        )
+    return {"access_token": token, "token_type": "bearer"}
 
 @router.post("/password-reset/request")
 async def request_password_reset(
