@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from app.domain.entities.permission import Permission, role_permissions
 from app.domain.entities.role import Role, user_roles
 from app.domain.entities.user import User
@@ -118,5 +119,7 @@ class UserRepository:
         return permissions
 
     async def list_all_users(self):
-        result = await self.session.execute(select(User))
+        result = await self.session.execute(
+            select(User).options(selectinload(User.roles))
+        )
         return result.scalars().all()
