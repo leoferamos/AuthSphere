@@ -11,32 +11,21 @@ export function AuthProvider({ children }) {
     params.append('username', username);
     params.append('password', password);
 
-    const response = await axios.post(
+    await axios.post(
       `${import.meta.env.VITE_API_URL}/token`,
       params,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
-    localStorage.setItem('access_token', response.data.access_token);
     await loadUserProfile();
-
-  
-    const userData = await axios.get(`${import.meta.env.VITE_API_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${response.data.access_token}` }
-    });
-    if (userData.data.permissions?.includes('admin:access')) {
-      window.location.href = '/admin';
-    } else {
-      window.location.href = '/';
-    }
   };
 
   const loadUserProfile = async () => {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setUser(response.data);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/me`);
+      setUser(response.data);
+    } catch {
+      setUser(null);
+    }
   };
 
   const logout = () => {
