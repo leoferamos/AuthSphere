@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.users import UserCreate, UserRead
 from app.infrastructure.repositories.user_repository import UserRepository
@@ -206,3 +206,27 @@ async def get_me(
         "email": current_user.email,
         "permissions": permissions
     }
+
+@router.post("/token")
+async def login_for_access_token(
+    response: Response,
+    username: str = Body(..., embed=True),
+    password: str = Body(..., embed=True)
+):
+    user_repo = UserRepository()
+    user = await user_repo.get_by_username(username)
+    if not user or not user.verify_password(password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": user.username})
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True, 
+        samesite="lax"
+    )
+    return {"token_type": "bearer"}
