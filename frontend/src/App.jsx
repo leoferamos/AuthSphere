@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminRoute } from './components/AdminRoute';
 import AdminPage from './pages/AdminPage';
 
@@ -22,8 +22,8 @@ const Home = () => {
 };
 
 const App = () => (
-  <AuthProvider>
-    <Router>
+  <Router>
+    <AuthProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
@@ -34,8 +34,8 @@ const App = () => (
           </AdminRoute>
         } />
       </Routes>
-    </Router>
-  </AuthProvider>
+    </AuthProvider>
+  </Router>
 );
 
 export default App;
