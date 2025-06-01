@@ -75,6 +75,10 @@ const RegisterForm = () => {
     });
   }, []);
 
+  useEffect(() => {
+    document.title = "Register - AuthSphere";
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === 'confirm_password') {
@@ -128,30 +132,47 @@ const RegisterForm = () => {
       <div style={styles.logo}>AuthSphere</div>
       <form onSubmit={handleSubmit} style={{ width: '100%' }}>
         {fields.map((field) => (
-          <div key={field.name}>
-            <input
-              style={styles.input}
-              type={field.field_type}
-              id={field.name}
-              name={field.name}
-              placeholder={field.label}
-              required={field.is_required}
-              value={form[field.name] || ''}
-              onChange={handleChange}
-              checked={field.field_type === 'checkbox' ? form[field.name] || false : undefined}
-            />
-            {}
-            {field.name === 'password' && (
-              <input
-                style={styles.input}
-                type="password"
-                id="confirm_password"
-                name="confirm_password"
-                placeholder="Confirm Password"
-                required
-                value={confirmPassword}
-                onChange={handleChange}
-              />
+          <div key={field.name} style={{ display: field.name === 'consent_lgpd' ? 'flex' : 'block', alignItems: 'center', marginBottom: 8 }}>
+            {field.name === 'consent_lgpd' ? (
+              <>
+                <input
+                  style={{ marginRight: 8 }}
+                  type="checkbox"
+                  id={field.name}
+                  name={field.name}
+                  required={field.is_required}
+                  checked={form[field.name] || false}
+                  onChange={handleChange}
+                />
+                <label htmlFor={field.name} style={{ fontSize: 14, color: "#555" }}>
+                  I agree with the use of my data according to the LGPD and privacy policy.
+                </label>
+              </>
+            ) : (
+              <>
+                <input
+                  style={styles.input}
+                  type={field.field_type}
+                  id={field.name}
+                  name={field.name}
+                  placeholder={field.label}
+                  required={field.is_required}
+                  value={form[field.name] || ''}
+                  onChange={handleChange}
+                />
+                {field.name === 'password' && (
+                  <input
+                    style={styles.input}
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    placeholder="Confirm Password"
+                    required
+                    value={confirmPassword}
+                    onChange={handleChange}
+                  />
+                )}
+              </>
             )}
           </div>
         ))}
