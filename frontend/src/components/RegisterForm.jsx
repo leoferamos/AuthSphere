@@ -2,6 +2,63 @@ import React, { useEffect, useState } from 'react';
 import { getActiveFormFields } from '../api/formFields';
 import { registerUser } from '../api/register';
 
+const styles = {
+  container: {
+    maxWidth: 420,
+    margin: '60px auto',
+    padding: 32,
+    background: '#fff',
+    borderRadius: 12,
+    boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  logo: {
+    fontWeight: 700,
+    fontSize: 28,
+    color: '#0070f3',
+    marginBottom: 24,
+    letterSpacing: 1,
+  },
+  input: {
+    width: '100%',
+    padding: 10,
+    margin: '8px 0',
+    borderRadius: 6,
+    border: '1px solid #ddd',
+    fontSize: 16,
+  },
+  button: {
+    width: '100%',
+    padding: 12,
+    background: '#0070f3',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 6,
+    fontWeight: 600,
+    fontSize: 16,
+    marginTop: 16,
+    cursor: 'pointer',
+  },
+  link: {
+    marginTop: 16,
+    color: '#0070f3',
+    textDecoration: 'none',
+    fontSize: 15,
+  },
+  error: {
+    color: '#d32f2f',
+    marginTop: 8,
+    fontSize: 14,
+  },
+  success: {
+    color: '#388e3c',
+    marginTop: 8,
+    fontSize: 14,
+  }
+};
+
 const FIELD_ORDER = ['username', 'email', 'password', 'consent_lgpd'];
 
 const RegisterForm = () => {
@@ -66,79 +123,44 @@ const RegisterForm = () => {
     }
   };
 
-  function formatErrorMessage(msg) {
-    if (msg.includes('at least 3 characters')) {
-      return 'Username must be at least 3 characters long.';
-    }
-    if (msg.includes('at least 8 characters')) {
-      return 'Password must be at least 8 characters long.';
-    }
-    if (msg.toLowerCase().includes('passwords do not match')) {
-      return 'Passwords do not match.';
-    }
-    if (msg.toLowerCase().includes('is required')) {
-      return 'Please fill in all required fields.';
-    }
-    return msg;
-  }
-
-  let errorMessage = '';
-  if (error) {
-    if (Array.isArray(error)) {
-      errorMessage = error.map((e) => e.msg || JSON.stringify(e)).join(', ');
-    } else if (typeof error === 'object') {
-      errorMessage = JSON.stringify(error);
-    } else {
-      errorMessage = error;
-    }
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
-      {fields.map((field) => (
-        <React.Fragment key={field.name}>
-          <div>
-            <label htmlFor={field.name}>{field.label}:</label>
-            {field.field_type === 'checkbox' ? (
+    <div style={styles.container}>
+      <div style={styles.logo}>AuthSphere</div>
+      <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+        {fields.map((field) => (
+          <div key={field.name}>
+            <input
+              style={styles.input}
+              type={field.field_type}
+              id={field.name}
+              name={field.name}
+              placeholder={field.label}
+              required={field.is_required}
+              value={form[field.name] || ''}
+              onChange={handleChange}
+              checked={field.field_type === 'checkbox' ? form[field.name] || false : undefined}
+            />
+            {}
+            {field.name === 'password' && (
               <input
-                type="checkbox"
-                id={field.name}
-                name={field.name}
-                required={field.is_required}
-                checked={form[field.name] || false}
-                onChange={handleChange}
-              />
-            ) : (
-              <input
-                type={field.field_type}
-                id={field.name}
-                name={field.name}
-                required={field.is_required}
-                value={form[field.name] || ''}
-                onChange={handleChange}
-              />
-            )}
-          </div>
-          {/* Renderiza Confirm Password logo após Password */}
-          {field.name === 'password' && (
-            <div>
-              <label htmlFor="confirm_password">Confirm Password:</label>
-              <input
+                style={styles.input}
                 type="password"
                 id="confirm_password"
                 name="confirm_password"
+                placeholder="Confirm Password"
                 required
                 value={confirmPassword}
                 onChange={handleChange}
               />
-            </div>
-          )}
-        </React.Fragment>
-      ))}
-      <button type="submit">Register</button>
-      {error && <div style={{ color: 'red' }}>{formatErrorMessage(error)}</div>}
-      {success && <div style={{ color: 'green' }}>{success}</div>}
-    </form>
+            )}
+          </div>
+        ))}
+        <button style={styles.button} type="submit">Register</button>
+        {error && <div style={styles.error}>{error}</div>}
+        {success && <div style={styles.success}>{success}</div>}
+      </form>
+      <a href="/login" style={styles.link}>Already have an account? Login</a>
+    </div>
   );
 };
 
