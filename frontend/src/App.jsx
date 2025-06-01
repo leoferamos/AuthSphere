@@ -1,8 +1,10 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { AuthProvider } from './contexts/AuthContext';
+import { AdminRoute } from './components/AdminRoute';
+import AdminPage from './pages/AdminPage';
 
 const Home = () => (
   <div>
@@ -13,13 +15,18 @@ const Home = () => (
 
 const App = () => (
   <AuthProvider>
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminPage />
+          </AdminRoute>
+        } />
       </Routes>
-    </BrowserRouter>
+    </Router>
   </AuthProvider>
 );
 
