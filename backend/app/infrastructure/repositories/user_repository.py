@@ -103,3 +103,16 @@ class UserRepository:
     async def get_by_id(self, user_id):
         result = await self.session.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
+
+    async def get_permissions(self, user_id: str) -> list[str]:
+        stmt = (
+            select(Permission.name)
+            .select_from(user_roles)
+            .join(Role, user_roles.c.role_id == Role.id)
+            .join(role_permissions, Role.id == role_permissions.c.role_id)
+            .join(Permission, role_permissions.c.permission_name == Permission.name)
+            .where(user_roles.c.user_id == user_id)
+        )
+        result = await self.session.execute(stmt)
+        permissions = [row[0] for row in result.all()]
+        return permissions
